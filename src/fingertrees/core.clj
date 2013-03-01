@@ -22,36 +22,32 @@
   (p [_]))
 
 (defprotocol FingerNode
-  (full [_])
+  (is-full [_])
   (is-empty [_])
+  (new-empty [_])
   (split [_]))
-
-
-  ;(let [[l m r] (split right)] (Tree. l (Seed. m) r))
 
 (deftype Seed [node]
   FingerTree
   (conj-l [_ x]
-    (if (not (full node))
+    (if (not (is-full node))
       (->Seed (conj-l node x))
-      (let [[l t r] (split node)]
-        (->Tree (conj-l l x) (->Seed t) r))))
+      (let [[l r] (split node)]
+        (->Tree (conj-l l x) (new-empty node) r))))
   (head-l [_]
-    (if (is-empty node)
-      nil
+    (if (not (is-empty node))
       (head-l node)))
   (tail-l [_]
-    (if (is-empty node)
-      (pop []) ; find a better error message here
+    (if (not (is-empty node))
       (->Seed (tail-l node))))
   (p [_] (str "<Seed" (p node) ">")))
 
 (deftype Tree [left trunk right]
   FingerTree
   (conj-l [_ x]
-    (if (not (full left))
+    (if (not (is-full left))
       (->Tree (conj-l left x) trunk right)
-      (let [[l t r] (split left)]
+      (let [[l r] (split left)]
         (->Tree (conj-l l x) (conj-l trunk r) right))))
   (head-l [_]
     (head-l left)) ; guaranteed to have at least 1 elem
@@ -69,9 +65,10 @@
   (tail-l [_] (->Node4 (vec (rest v))))
   (p [_] (str "<Node " (apply str (interpose " " (map p v))) ">"))
   FingerNode
-  (full [_] (> (count v) 3))
+  (is-full [_] (> (count v) 3))
   (is-empty [_] (empty? v))
-  (split [_] [(->Node4 (subvec v 0 2)) (->Node4 []) (->Node4 (subvec v 2))]))
+  (new-empty [_] (Node4. []))
+  (split [_] [(->Node4 (subvec v 0 2)) (->Node4 (subvec v 2))]))
 
 (extend-type Object
   FingerTree
@@ -88,17 +85,6 @@
 
 (map p (take 5 (iterate tail-l (reduce conj-l (new-tree) (range 5)))))
 
-(conj-and-peek head-l tail-l conj-l 200)
-
-(.v ((split (reduce conj-l (Node4. []) (range 4))) 2))
-
-(p (reduce conj-l (new-tree) (range 20)))
-
-(p (reduce conj-l (new-tree) (range 7)))
-
-(->
- (reduce conj-l (new-tree) (range 7))
- tail-l
- tail-l
- tail-l
- p)
+(assert
+ (= (conj-and-peek head-l tail-l conj-l 200)
+    (range 199 -1 -1)))
