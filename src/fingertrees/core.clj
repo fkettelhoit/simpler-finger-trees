@@ -1,6 +1,6 @@
 (ns fingertrees.core
-  (:use [fingertrees.tree]
-        [fingertrees.node]))
+  (:use [fingertrees.tree :reload true]
+        [fingertrees.node :reload true]))
 
 ;;; Ok, lets start to break down finger trees into simpler components.
 ;;; First of all we need to distinguish between the simple containers
