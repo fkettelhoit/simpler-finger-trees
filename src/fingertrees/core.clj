@@ -39,5 +39,9 @@
        (map head-fn)))
 
 (assert
- (= (conj-and-peek head-l tail-l conj-l 200)
-    (range 199 -1 -1)))
+ (= (conj-and-peek head-l tail-l conj-l 1000)
+    (range 999 -1 -1)))
+
+(assert
+ (= (conj-and-peek head-l tail-l conj-r 1000)
+    (range 1000)))

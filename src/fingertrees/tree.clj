@@ -2,6 +2,7 @@
 
 (defprotocol FingerTree
   (conj-l [_ x])
+  (conj-r [_ x])
   (head-l [_])
   (tail-l [_])
   (p [_]))
@@ -23,6 +24,11 @@
       (->Seed (conj-l node x))
       (let [[l r] (split node)]
         (->Tree (conj-l l x) (->Seed (new-empty node)) r))))
+  (conj-r [_ x]
+    (if (not (is-full node))
+      (->Seed (conj-r node x))
+      (let [[l r] (split node)]
+        (->Tree l (->Seed (new-empty node)) (conj-r r x)))))
   (head-l [_]
     (if (not (is-empty node))
       (head-l node)))
@@ -38,6 +44,11 @@
       (->Tree (conj-l left x) trunk right)
       (let [[l r] (split left)]
         (->Tree (conj-l l x) (conj-l trunk r) right))))
+  (conj-r [_ x]
+    (if (not (is-full right))
+      (->Tree left trunk (conj-r right x))
+      (let [[l r] (split right)]
+        (->Tree left (conj-r trunk l) (conj-r r x)))))
   (head-l [_]
     (head-l left)) ; guaranteed to have at least 1 elem
   (tail-l [_]

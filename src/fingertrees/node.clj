@@ -24,6 +24,7 @@
            `(deftype ~name [~@fields]
               FingerTree
               (conj-l [_ x#] (node-ctor x# ~@fields))
+              (conj-r [_ x#] (node-ctor ~@fields x#))
               (head-l [_] ~(first fields))
               (tail-l [_] (node-ctor ~@(rest fields)))
               (p [_]
