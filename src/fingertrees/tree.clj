@@ -22,7 +22,7 @@
     (if (not (is-full node))
       (->Seed (conj-l node x))
       (let [[l r] (split node)]
-        (->Tree (conj-l l x) (new-empty node) r))))
+        (->Tree (conj-l l x) (->Seed (new-empty node)) r))))
   (head-l [_]
     (if (not (is-empty node))
       (head-l node)))
