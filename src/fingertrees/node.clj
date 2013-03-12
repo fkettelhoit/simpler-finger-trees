@@ -37,7 +37,8 @@
               (new-empty [_] (node-ctor))
               (is-full [_] ~(if (= size capacity) true false))
               (is-empty [_] ~(if (= size 0) true false))
-              (split [_] [(node-ctor ~@fields-l) (node-ctor ~@fields-r)]))))))
+              (split [_] [(node-ctor ~@fields-l) (node-ctor ~@fields-r)])
+              (as-seq [_] (seq ~(vec fields))))))))
 
 #_(clojure.pprint/pprint (macroexpand-1 '(define-nodes 4)))
 

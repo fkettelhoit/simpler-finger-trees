@@ -5,13 +5,18 @@
   (conj-r [_ x])
   (head-l [_])
   (tail-l [_])
+  (conc [_ tree])
   (p [_]))
+
+(defprotocol FingerTreeHelper
+  (conc-reverse [_ tree]))
 
 (defprotocol FingerNode
   (is-full [_])
   (is-empty [_])
   (new-empty [_])
-  (split [_]))
+  (split [_])
+  (as-seq [_]))
 
 ;;; declare the types so we can use the "->Type" constructors
 (deftype Seed [node])
@@ -35,7 +40,10 @@
   (tail-l [_]
     (if (not (is-empty node))
       (->Seed (tail-l node))))
-  (p [_] (str "<Seed" (p node) ">")))
+  (conc [_ tree] (reduce conj-l tree (reverse (as-seq node))))
+  (p [_] (str "<Seed" (p node) ">"))
+  FingerTreeHelper
+  (conc-reverse [_ tree] (reduce conj-r tree (as-seq node))))
 
 (deftype Tree [left trunk right]
   FingerTree
@@ -56,7 +64,14 @@
      (not (is-empty (tail-l left))) (->Tree (tail-l left) trunk right)
      (not (nil? (head-l trunk))) (->Tree (head-l trunk) (tail-l trunk) right)
      :else (->Seed right)))
-  (p [_] (str "<Tree" (p left) "|" (p trunk) "|" (p right) ">")))
+  (conc [this tree] (conc-reverse tree this))
+  (p [_] (str "<Tree" (p left) "|" (p trunk) "|" (p right) ">"))
+  FingerTreeHelper
+  (conc-reverse [_ tree]
+    (let [[l1 t1 r1] [(.left tree) (.trunk tree) (.right tree)]
+          [l2 t2 r2] [left trunk right]
+          middle-trunk (->Seed (conj-r (conj-r (new-empty r1) r1) l2))]
+      (->Tree l1 (conc (conc t1 middle-trunk) t2) r2))))
 
 (extend-type Object
   FingerTree

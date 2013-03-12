@@ -43,5 +43,13 @@
     (range 999 -1 -1)))
 
 (assert
+ (= (->> (conc (reduce conj-r (new-tree) (range 500))
+               (reduce conj-r (new-tree) (range 500 1000)))
+         (iterate tail-l)
+         (take 1000)
+         (map head-l))
+    (range 1000)))
+
+(assert
  (= (conj-and-peek head-l tail-l conj-r 1000)
     (range 1000)))
