@@ -26,6 +26,12 @@
               (conj-l [_ x#] (node-ctor x# ~@fields))
               (head-l [_] ~(first fields))
               (tail-l [_] (node-ctor ~@(rest fields)))
+              (p [_]
+                (str "<Node "
+                     (apply str (interpose " " (map
+                                                fingertrees.tree/p
+                                                ~(vec fields))))
+                     ">"))
               FingerNode
               (new-empty [_] (node-ctor))
               (is-full [_] ~(if (= size capacity) true false))
