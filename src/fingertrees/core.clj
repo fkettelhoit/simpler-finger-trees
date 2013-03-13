@@ -3,7 +3,7 @@
         [fingertrees.node :reload true]))
 
 (defn new-tree []
-  (->Seed (->Node0)))
+  (->Seed nil (->Node0)))
 
 (defn conj-and-peek [head-fn tail-fn conj-fn n]
   (->> (reduce conj-fn (new-tree) (range n))

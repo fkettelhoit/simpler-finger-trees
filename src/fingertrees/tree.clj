@@ -169,17 +169,44 @@
   (let [[_ name fields & rest] form]
     `(deftype ~name ~fields)))
 
-(defmacro deftree []
-  (let [[seed tree] (map unqualify-deftype [seed-template tree-template])]
-    `(do
-       ~(deftype-head seed)
-       ~(deftype-head tree)
-       ~seed
-       ~tree)))
+;; (defn replace-ctors [form]
+;;   (walk/postwalk-replace {`->Seed '~@[->Seed nil]
+;;                           `->Tree '~@[->Tree nil]}
+;;                          form))
 
-#_(clojure.pprint/pprint (macroexpand-1 '(deftree)))
+(defn replace-ctors [form]
+  (let [smap #{`->Seed `->Tree}]
+    (walk/postwalk (fn [x] (if (and (seq? x) (smap (first x)))
+                            `(~(smap (first x)) nil ~@(rest x))
+                            x))
+                   form)))
 
-(deftree)
+(defn prepend-fields [extra-fields form]
+  (let [[_ name fields & rest] form]
+    `(deftype ~name [~@extra-fields ~@fields] ~@rest)))
+
+(defmacro deftree
+  ([]
+     (let [[seed tree] (map unqualify-deftype [seed-template tree-template])]
+       `(do
+          ~(deftype-head seed)
+          ~(deftype-head tree)
+          ~seed
+          ~tree)))
+  ([measure-fn combine-fn]
+     (let [[seed tree] (map unqualify-deftype [seed-template tree-template])
+           [seed tree] (map (partial prepend-fields ['v]) [seed tree])]
+       `(do
+          ~(deftype-head seed)
+          ~(deftype-head tree)
+          ~(replace-ctors seed)
+          ~(replace-ctors tree)))))
+
+(replace-ctors seed-template)
+
+(clojure.pprint/pprint (macroexpand-1 '(deftree nil nil)))
+
+(deftree nil nil)
 
 (extend-type Object
   FingerTree
