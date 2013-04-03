@@ -38,10 +38,12 @@
        (take (* n 2))
        (map head-l)))
 
-(defn run [pfx]
+(defn run [pfx n]
   (let [re (re-pattern (str \^ pfx \-))]
     (reduce
-      (fn [m [n f]] (assoc m n (first (:mean (cr/quick-benchmark (f 50))))))
+      (fn [m [fname f]]
+        (assoc m fname
+               (first (:mean (cr/quick-benchmark (f n))))))
       {}
       (filter
         (fn [[k v]] (re-find re (str k)))
