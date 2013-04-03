@@ -204,7 +204,7 @@
 
 (replace-ctors seed-template)
 
-(clojure.pprint/pprint (macroexpand-1 '(deftree nil nil)))
+;(clojure.pprint/pprint (macroexpand-1 '(deftree nil nil)))
 
 (deftree nil nil)
 
